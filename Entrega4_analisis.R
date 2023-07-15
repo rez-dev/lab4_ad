@@ -289,17 +289,62 @@ str(Final)
 #          SECCIÓN LABORATORIO 4
 ###################################################
 library("C50")
-
-str(strat_sample)
-strat_sample2$y <- as.factor(strat_sample2$y)
-strat_sample2 <- subset(strat_sample2, strat_sample2$poutcome != "unknown")
-
-arbol <- C5.0(strat_sample2[,-14], strat_sample2$y)
-reglas <- C5.0(strat_sample2[,-14], strat_sample2$y, rules = TRUE) 
-summary(reglas) # view the ruleset 
+library("gmodels")
 
 
-summary(arbol) # view the model components  
-plot(arbol)
+poblacion2$job <- factor(poblacion2$job)
+poblacion2$marital <- factor(poblacion2$marital)
+poblacion2$education <- factor(poblacion2$education)
+poblacion2$default <- factor(poblacion2$default)
+poblacion2$housing <- factor(poblacion2$housing)
+poblacion2$loan <- factor(poblacion2$loan)
+poblacion2$contact <- factor(poblacion2$contact)
+poblacion2$month <- factor(poblacion2$month)
+poblacion2$day_of_week <- factor(poblacion2$day_of_week)
+poblacion2$poutcome <- factor(poblacion2$poutcome)
+poblacion2$y <- factor(poblacion2$y)
+
+poblacion2$age <- as.integer(poblacion2$age)
+poblacion2$duration <- as.integer(poblacion2$duration)
+poblacion2$campaign <- as.integer(poblacion2$campaign)
+poblacion2$previous <- as.integer(poblacion2$previous)
 
 
+poblacion2$emp.var.rate <- as.numeric(poblacion2$emp.var.rate)
+poblacion2$cons.price.idx <- as.numeric(poblacion2$cons.price.idx)
+poblacion2$cons.conf.idx <- as.numeric(poblacion2$cons.conf.idx)
+poblacion2$euribor3m <- as.numeric(poblacion2$euribor3m)
+poblacion2$nr.employed <- as.numeric(poblacion2$nr.employed)
+
+
+set.seed(123)
+train_sample <- sample(30446, 26327)
+df_train <- poblacion2[train_sample,]
+df_test <- poblacion2[-train_sample,]
+
+prop.table(table(df_train$y))
+
+cmodel <- C5.0(df_train[-20], df_train$y)
+
+summary(cmodel)
+
+### Evaluate model performance
+cmodel_pred <- predict(cmodel, df_test)
+
+### Cross table validation
+CrossTable(df_test$y, cmodel_pred,
+           prop.chisq = FALSE, prop.c = FALSE, prop.r = FALSE,
+           dnn = c('actual default', 'predicted default'))
+
+
+#str(strat_sample)
+#strat_sample2$y <- as.factor(strat_sample2$y)
+#strat_sample2 <- subset(strat_sample2, strat_sample2$poutcome != "unknown")
+
+#arbol <- C5.0(strat_sample2[,-14], strat_sample2$y)
+#reglas <- C5.0(strat_sample2[,-14], strat_sample2$y, rules = TRUE) 
+#summary(reglas) # view the ruleset 
+
+
+#summary(arbol) # view the model components  
+#plot(arbol)
